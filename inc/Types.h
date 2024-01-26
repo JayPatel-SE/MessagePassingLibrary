@@ -17,6 +17,7 @@
 typedef enum {
     kOk = 0,//!< NO ERROR
     kErr  = 1,//!< GENERIC ERROR
+    kErrParam = 2,//!< PARAMETER ERROR
 } error_t;
 
 /** Structure of the Message */
@@ -29,17 +30,16 @@ typedef struct
 /** Packet for message transfer */
 typedef struct
 {
-    uint8_t dst;
+    int dst;
     message_t* msg;
 } packet_t;
 
 /** Configuration for the message system */
 typedef struct
 {
-    uint8_t number_of_messages;
-    uint8_t size_of_messages;
     uint16_t max_messages;
     uint8_t max_threads;
+    uint16_t max_packets;
 } system_conf_t;
 
 /** A counter to assign an unique identifier to new threads*/
