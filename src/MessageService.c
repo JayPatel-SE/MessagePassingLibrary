@@ -39,17 +39,54 @@ message_t* new_message(void)
 
 void delete_message(message_t* msg)
 {
+    if (msg == NULL)
+    {
+        printf("ERROR: given message is NULL\n");
+        return;
+    }
 
+    error_t err = return_used_message(msg);
+    if (err != kOk)
+    {
+        printf("ERROR: delete message, given err=%d\n", err);
+        return;
+    }
 }
 
 int send(uint8_t destination_id, message_t* msg)
 {
+    if (msg == NULL)
+    {
+        printf("ERROR: given message is NULL\n");
+        return -1;
+    }
 
+    error_t err = send_packet(destination_id, msg);
+    if (err != kOk)
+    {
+        printf("ERROR: send failed, given err=%d\n", err);
+        return -1;
+    }
+
+    return 0;
 }
 
 int recv(uint8_t receiver_id, message_t* msg)
 {
+    if (msg == NULL)
+    {
+        printf("ERROR: given message is NULL\n");
+        return -1;
+    }
 
+    error_t err = receive_packet(receiver_id, msg);
+    if (err != kOk)
+    {
+        printf("ERROR: receive failed, returned error=%d\n", err);
+        return -1;
+    }
+
+    return 0;
 }
 
 int register_new_user(void)

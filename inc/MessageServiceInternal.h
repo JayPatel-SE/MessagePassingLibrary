@@ -33,8 +33,10 @@ error_t message_pool_init(void);
 
 error_t send_packet(uint8_t destination_id, message_t* msg);
 
-error_t receive_packet(packet_t* packet);
+error_t receive_packet(uint8_t receiver_id, message_t* msg);
 
 error_t get_new_message(message_t* msg);
+
+error_t return_used_message(message_t* msg);
 
 int get_new_id(void);

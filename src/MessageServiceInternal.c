@@ -39,15 +39,51 @@ error_t get_new_message(message_t* msg)
         return kErrParam;
     }
 
-    void * data = NULL;
-    queue_get_next_open(messages, (void*)data);
-    if (data == NULL)
+    pthread_mutex_lock(messages->mutex);
+    if (messages->size == messages->max_size)
     {
-        printf("ERROR: Could not get new message, NULL returned\n");
-        msg = NULL;
+        pthread_mutex_unlock(messages->mutex);
+        printf("ERROR: No more messages available\n");
         return kErr;
     }
-    msg = (message_t*) data;
+
+    for (int i = 0; i < messages->max_size; i++)
+    {
+        if (messages->occupied[i] == 0)
+        {
+            messages->size++;
+            messages->occupied[i] = 1;
+            msg = (message_t*)messages->circular_buffer[i];
+            printf("INFO: Get new message from buffer, p:%p, i:%d\n", msg, i);
+            return kOk;
+        }
+    }
+    pthread_mutex_unlock(messages->mutex);
+}
+
+error_t return_used_message(message_t* msg)
+{
+    if (msg == NULL)
+    {
+        printf("ERROR: Given null message struct\n");
+        return kErrParam;
+    }
+
+    pthread_mutex_lock(messages->mutex);
+    for (int i = 0; i < messages->max_size; i++)
+    {
+        if (messages->circular_buffer[i] == msg)
+        {
+            messages->size--;
+            messages->occupied[i] = 0;
+            printf("INFO: Returned message back to buffer, p:%p, i:%d\n", msg, i);
+            return kOk;
+        }
+    }
+    pthread_mutex_unlock(messages->mutex);
+
+    printf("ERROR: Given msg was not found, %p\n", msg);
+    return kErr;
 }
 
 error_t send_packet(uint8_t destination_id, message_t* msg)
@@ -58,15 +94,52 @@ error_t send_packet(uint8_t destination_id, message_t* msg)
         return kErrParam;
     }
 
-    void * data = NULL;
-    queue_get_next_open(packets, data);
-    if (data == NULL)
+    pthread_mutex_lock(packets->mutex);
+    if (packets->size == packets->max_size)
     {
-        printf("ERROR: Could not send message, NULL returned\n");
+        pthread_mutex_unlock(packets->mutex);
+        printf("ERROR: No more packets available\n");
         return kErr;
     }
 
-    packet_t* packet = (packet_t*) data;
-    packet->dst = destination_id;
-    packet->msg = msg;
+    for (int i = 0; i < packets->max_size; i++)
+    {
+        if (packets->occupied[i] == 0)
+        {
+            packets->size++;
+            packets->occupied[i] = 1;
+            packet_t* packet = (packet_t*)messages->circular_buffer[i];
+            packet->dst = destination_id;
+            packet->msg = msg;
+            printf("INFO: Get new packet from buffer, p:%p, i:%d\n", packet, i);
+            return kOk;
+        }
+    }
+
+    pthread_mutex_unlock(packets->mutex);
+
+    printf("ERROR: Given msg was not sent\n");
+    return kErr;
+}
+
+error_t receive_packet(uint8_t receiver_id, message_t* msg)
+{
+    pthread_mutex_lock(packets->mutex);
+
+    for (int i = 0; i < packets->max_size; i++)
+    {
+        packet_t* pkt = (packet_t*)packets->circular_buffer[i];
+        if (pkt->dst == receiver_id)
+        {
+            msg = pkt->msg;
+            packets->occupied[i] = 0;
+            packets->size--;
+            printf("INFO: Packet received, releasing..., p:%p, i:%d\n", pkt, i);
+            return kOk;
+        }
+    }
+    pthread_mutex_unlock(packets->mutex);
+
+    printf("ERRORR: No packet was received, rec_id=%d\n", receiver_id);
+    return kErr;
 }
