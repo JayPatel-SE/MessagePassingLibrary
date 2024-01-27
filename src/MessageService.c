@@ -12,6 +12,8 @@
 #include "MessageService.h"
 #include "MessageServiceInternal.h"
 
+#include <stdlib.h>
+
 error_t message_system_init(system_conf_t* conf)
 {
     error_t err = internal_init(conf);
@@ -25,7 +27,7 @@ error_t message_system_init(system_conf_t* conf)
 
 message_t* new_message(void)
 {
-    message_t* msg;
+    message_t* msg = NULL;
     error_t err = get_new_message(msg);
     if (err != kOk)
     {

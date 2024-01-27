@@ -14,6 +14,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <unistd.h>
 
 void *thread1(void *args)
 {
@@ -30,8 +31,8 @@ int main(void)
 {
     pthread_t thread_id;
     printf("before executing the thread\n");
-    pthread_create(&thread1, NULL, thread1, NULL);
-    pthread_join(thread1, NULL);
+    pthread_create(&thread_id, NULL, thread1, NULL);
+    pthread_join(thread_id, NULL);
     printf("After thread\n");
     return 0;
 }

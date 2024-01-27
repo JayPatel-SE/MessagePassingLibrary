@@ -23,4 +23,4 @@ all: $(EXE)
 
 clean:
 	rm -rf $(BUILD_DIR)
-	mr -rf $(EXE)
+	rm -rf $(EXE)

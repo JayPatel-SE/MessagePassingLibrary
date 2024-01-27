@@ -9,27 +9,31 @@
  *
  */
 
-#include "CircularQueue.h"
 #include "MessageServiceInternal.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+
 // A queue of all of the messages sent ready to be received
-static circular_queue_handle* packets;
+static buffer_pool_handle_t* packets;
 // A queue of available messages
-static circular_queue_handle* messages;
+static buffer_pool_handle_t* messages;
 
 // A counter to assign unique identifier to new threads
 static new_user_id_t* id_gen;
 
 error_t internal_init(system_conf_t* conf)
 {
-    queue_init(messages, sizeof(message_t), conf->max_messages);
-    queue_init(packets, sizeof(packet_t), conf->max_packets);
+    buffer_pool_init(messages, sizeof(message_t), conf->max_messages);
+    buffer_pool_init(packets, sizeof(packet_t), conf->max_packets);
 
     for (int i = 0; i < conf->max_packets; i++)
     {
         packet_t* temp = (packet_t*)packets->circular_buffer[i];
         temp->dst = -1;
     }
+
+    return kOk;
 }
 
 error_t get_new_message(message_t* msg)
@@ -60,6 +64,9 @@ error_t get_new_message(message_t* msg)
         }
     }
     pthread_mutex_unlock(messages->mutex);
+
+    printf("ERROR: No new messages left in buffer pool\n");
+    return kErr;
 }
 
 error_t return_used_message(message_t* msg)
@@ -143,4 +150,38 @@ error_t receive_packet(uint8_t receiver_id, message_t* msg)
 
     printf("ERRORR: No packet was received, rec_id=%d\n", receiver_id);
     return kErr;
+}
+
+void buffer_pool_init(buffer_pool_handle_t* handle, size_t data_size, uint8_t length)
+{
+    if (handle == NULL)
+    {
+        printf("ERROR: The given handle is null\n");
+        return;
+    }
+
+    handle = malloc(sizeof(buffer_pool_handle_t));
+    handle->circular_buffer = malloc(sizeof(void*) * length);
+    handle->occupied = malloc(sizeof(uint8_t) * length);
+    handle->max_size = length;
+    pthread_mutex_init(handle->mutex, NULL);
+
+    for (int i = 0; i < length; i++)
+    {
+        handle->circular_buffer[i] = malloc(data_size);
+        handle->occupied[i] = 0;
+    }
+}
+
+void buffer_pool_destory(buffer_pool_handle_t* handle)
+{
+    if (handle == NULL)
+    {
+        printf("ERROR: The given handle is null\n");
+        return;
+    }
+
+    pthread_mutex_destroy(handle->mutex);
+    free(handle->circular_buffer);
+    free(handle);
 }
