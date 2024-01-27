@@ -12,6 +12,8 @@
 #include <pthread.h>
 #include <stdint.h>
 
+#ifndef TYPES_H
+#define TYPES_H
 
 /** Error Defintions */
 typedef enum {
@@ -49,3 +51,14 @@ typedef struct
     int next_unique_id;
     pthread_mutex_t mutex;
 } new_user_id_t;
+
+typedef struct
+{
+    void** circular_buffer;
+    uint8_t* occupied;
+    uint8_t size;
+    uint8_t max_size;
+    pthread_mutex_t* mutex;
+} buffer_pool_handle_t;
+
+#endif

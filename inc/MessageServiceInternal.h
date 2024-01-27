@@ -11,8 +11,10 @@
 
 #include "Types.h"
 
-#include <stdlib.h>
 #include <stdint.h>
+
+#ifndef MESSAGE_SERVICE_INTERNAL_H
+#define MESSAGE_SERVICE_INTERNAL_H
 
 error_t internal_init(system_conf_t* conf);
 
@@ -24,4 +26,11 @@ error_t get_new_message(message_t* msg);
 
 error_t return_used_message(message_t* msg);
 
+void buffer_pool_init(
+    buffer_pool_handle_t* handle, size_t data_size, uint8_t length);
+
+void buffer_pool_destory(buffer_pool_handle_t* handle);
+
 int get_new_id(void);
+
+#endif

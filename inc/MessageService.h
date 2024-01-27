@@ -14,6 +14,9 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#ifndef MESSAGE_SERVICE_H
+#define MESSAGE_SERVICE_H
+
 error_t message_system_init(system_conf_t* conf);
 
 /**
@@ -54,3 +57,5 @@ int recv(uint8_t receiver_id, message_t* msg);
  * @return int an unique identifier for the queue
  */
 int register_new_user(void);
+
+#endif
