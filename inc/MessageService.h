@@ -9,7 +9,6 @@
  *
  */
 
-#include "CircularQueue.h"
 #include "Types.h"
 
 #include <stdio.h>

@@ -9,8 +9,8 @@
  *
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <pthread.h>
+#include <stdint.h>
 
 
 /** Error Defintions */

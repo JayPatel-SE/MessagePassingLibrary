@@ -11,7 +11,6 @@
 
 #include "MessageService.h"
 #include "MessageServiceInternal.h"
-#include "Types.h"
 
 error_t message_system_init(system_conf_t* conf)
 {
@@ -91,5 +90,5 @@ int recv(uint8_t receiver_id, message_t* msg)
 
 int register_new_user(void)
 {
-
+    return 0;
 }

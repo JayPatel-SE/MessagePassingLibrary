@@ -11,18 +11,19 @@
 
 #include "CircularQueue.h"
 #include "MessageServiceInternal.h"
-#include "Types.h"
+
+// A queue of all of the messages sent ready to be received
+static circular_queue_handle* packets;
+// A queue of available messages
+static circular_queue_handle* messages;
+
+// A counter to assign unique identifier to new threads
+static new_user_id_t* id_gen;
 
 error_t internal_init(system_conf_t* conf)
 {
     queue_init(messages, sizeof(message_t), conf->max_messages);
     queue_init(packets, sizeof(packet_t), conf->max_packets);
-    message_use = malloc(sizeof(uint8_t) * conf->max_messages);
-
-    for (int i = 0; i < conf->max_messages; i++)
-    {
-        message_use[i] = 0;
-    }
 
     for (int i = 0; i < conf->max_packets; i++)
     {

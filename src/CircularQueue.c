@@ -31,6 +31,7 @@ void queue_init(circular_queue_handle* handle, size_t data_size, uint8_t length)
     for (int i = 0; i < length; i++)
     {
         handle->circular_buffer[i] = malloc(data_size);
+        handle->occupied[i] = 0;
     }
 }
 
