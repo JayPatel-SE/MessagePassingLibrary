@@ -1,10 +1,26 @@
-COMPILER=gcc
+SOURCES += $(wildcard src/*.c) \
 
-library:
-	@$(COMPILER) -c src/*.c -Iinclude/ -o bin/library.o
-	@echo "built library.o"
+INCLUDES += -Iinc
 
-project:
-	$(COMPILER) -c main.c -Iinclude -o bin/main.o
-	@$(COMPILER) bin/library.o -o MessagePassing
-	@echo "Finished building MessagePassingLibrary"
+BUILD_DIR = build
+
+LDFLAGS = -pthread
+
+WARNINGS += -Wall
+
+EXE = msg_main
+
+OBJECTS = $(addprefix $(BUILD_DIR)/, $(addsuffix .o, $(basename $(SOURCES))))
+
+$(BUILD_DIR)/%.o: %.c
+	@mkdir -p $(dir $@)
+	gcc $(WARNINGS) -c $(INCLUDES) $< -o $@
+
+$(EXE): $(OBJECTS)
+	gcc $(OBJECTS) -o $@ $(LDFLAGS)
+
+all: $(EXE)
+
+clean:
+	rm -rf $(BUILD_DIR)
+	mr -rf $(EXE)
