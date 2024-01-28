@@ -17,9 +17,9 @@
 
 /** Error Defintions */
 typedef enum {
-    kOk = 0,//!< NO ERROR
-    kErr  = 1,//!< GENERIC ERROR
-    kErrParam = 2,//!< PARAMETER ERROR
+    kOk = 0,
+    kErr  = 1,
+    kErrParam = 2,
 } error_t;
 
 /** Structure of the Message */
@@ -32,7 +32,7 @@ typedef struct
 /** Packet for message transfer */
 typedef struct
 {
-    int dst;
+    uint8_t dst;
     message_t* msg;
 } packet_t;
 
@@ -40,13 +40,13 @@ typedef struct
 typedef struct
 {
     uint16_t max_messages;
-    uint8_t max_threads;
     uint16_t max_packets;
 } system_conf_t;
 
+/** Structure to hold buffer pool */
 typedef struct
 {
-    void** circular_buffer;
+    void** buffer_pool;
     uint8_t* occupied;
     uint8_t size;
     uint8_t max_size;

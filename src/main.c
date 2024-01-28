@@ -57,7 +57,6 @@ int main(void)
     system_conf_t conf;
     conf.max_messages = 50;
     conf.max_packets = 50;
-    conf.max_threads = 50;
 
     // Initialize the message system
     error_t err = message_system_init(&conf);

@@ -11,8 +11,8 @@
 
 #include <stdio.h>
 
-#define ENABLE_ERROR_LOGS 1
-#define ENABLE_INFO_LOGS 0
+#define ENABLE_ERROR_LOGS 1     // 0 to disbale ERROR logs, 1 to enable
+#define ENABLE_INFO_LOGS 0      // 0 to disable INFO logs, 1 to enable
 
 #ifndef LOG_H
 #define LOG_H

@@ -83,8 +83,6 @@ int recv(uint8_t receiver_id, message_t** msg)
         return -1;
     }
 
-    // memcpy(msg->data, msg_temp->data, msg_temp->len);
-    // msg->len = msg_temp->len;
     *msg = msg_temp;
 
     return 0;
