@@ -49,13 +49,6 @@ int send(uint8_t destination_id, message_t* msg);
  * @param[out] msg The message being received
  * @return int 0 if success, non-0 if error
  */
-int recv(uint8_t receiver_id, message_t* msg);
-
-/**
- * @brief Register a new user to the library
- *
- * @return int an unique identifier for the queue
- */
-int register_new_user(void);
+int recv(uint8_t receiver_id, message_t** msg);
 
 #endif

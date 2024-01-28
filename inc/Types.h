@@ -44,21 +44,13 @@ typedef struct
     uint16_t max_packets;
 } system_conf_t;
 
-/** A counter to assign an unique identifier to new threads*/
-typedef struct
-{
-    int* registered_users;
-    int next_unique_id;
-    pthread_mutex_t mutex;
-} new_user_id_t;
-
 typedef struct
 {
     void** circular_buffer;
     uint8_t* occupied;
     uint8_t size;
     uint8_t max_size;
-    pthread_mutex_t* mutex;
+    pthread_mutex_t mutex;
 } buffer_pool_handle_t;
 
 #endif
