@@ -4,7 +4,7 @@ INCLUDES += -Iinc
 
 BUILD_DIR = build
 
-LDFLAGS = -pthread
+LDFLAGS = -pthread -lm
 
 WARNINGS += -Wall
 
