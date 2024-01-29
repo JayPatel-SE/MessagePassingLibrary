@@ -20,7 +20,18 @@ error_t message_system_init(system_conf_t* conf)
     error_t err = internal_init(conf);
     if (err != kOk)
     {
-        LOGE("Unable to initialize the internal message system");
+        LOGE("Unable to initialize the internal message system\n");
+        return kErr;
+    }
+    return kOk;
+}
+
+error_t message_system_term()
+{
+    error_t err = internal_term();
+    if (err != kOk)
+    {
+        LOGE("Unable to terminate the internal message system\n");
         return kErr;
     }
     return kOk;

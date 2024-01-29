@@ -21,9 +21,16 @@
  * @brief Initialize the Message Service System
  *
  * @param[in] conf Configuration for the system
- * @return error_t
+ * @return error_t error code
  */
 error_t message_system_init(system_conf_t* conf);
+
+/**
+ * @brief Terminate the Message System, clear all allocated memory
+ *
+ * @return error_t error code
+ */
+error_t message_system_term();
 
 /**
  * @brief Get an available message struct from the library

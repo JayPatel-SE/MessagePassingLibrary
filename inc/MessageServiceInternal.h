@@ -25,6 +25,13 @@
 error_t internal_init(system_conf_t* conf);
 
 /**
+ * @brief Terminate the internals of the message service system
+ *
+ * @return error_t error code
+ */
+error_t internal_term();
+
+/**
  * @brief Send a packet from one thread to another
  *
  * @param[in] destination_id The destination of the packet

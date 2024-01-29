@@ -14,6 +14,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 // A queue of all of the messages sent ready to be received
 static buffer_pool_handle_t* packets;
@@ -24,6 +25,20 @@ error_t internal_init(system_conf_t* conf)
 {
     buffer_pool_init(&messages, sizeof(message_t), conf->max_messages);
     buffer_pool_init(&packets, sizeof(packet_t), conf->max_packets);
+
+    for (int i = 0; i < packets->max_size; i++)
+    {
+        packet_t* pkt = (packet_t*)packets->buffer_pool[i];
+        pkt->msg = (message_t*)malloc(sizeof(message_t));
+    }
+
+    return kOk;
+}
+
+error_t internal_term()
+{
+    buffer_pool_destory(messages);
+    buffer_pool_destory(packets);
 
     return kOk;
 }
@@ -106,8 +121,10 @@ error_t send_packet(uint8_t destination_id, message_t* msg)
             packets->occupied[i] = 1;
             packet_t* packet = (packet_t*)packets->buffer_pool[i];
             packet->dst = destination_id;
-            packet->msg = msg;
-            LOGI("Get new packet from buffer, p:%p, i:%d, msg=%p\n", packet, i, packet->msg);
+            memcpy(packet->msg->data, msg->data, msg->len);
+            packet->msg->len = msg->len;
+            LOGI("Get new packet from buffer, p:%p, i:%d, msg=%p\n",
+                packet, i, packet->msg);
             pthread_mutex_unlock(&packets->mutex);
             return kOk;
         }
@@ -126,7 +143,7 @@ error_t receive_packet(uint8_t receiver_id, message_t** msg)
     for (int i = 0; i < packets->max_size; i++)
     {
         packet_t* pkt = (packet_t*)packets->buffer_pool[i];
-        if (pkt->dst == receiver_id)
+        if (pkt->dst == receiver_id && packets->occupied[i] == 1)
         {
             *msg = pkt->msg;
             packets->occupied[i] = 0;
