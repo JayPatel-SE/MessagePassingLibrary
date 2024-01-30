@@ -361,17 +361,6 @@ error_t registered_users_destroy(linked_list_handle_t* users)
     return ret_err;
 }
 
-void pl()
-{
-    node_t* temp_node = registered_users->head_node;
-    while (temp_node != NULL)
-    {
-        printf("temp_node->data=%d, next=%p, prev=%p\n", temp_node->data, temp_node->next, temp_node->prev);
-        temp_node = temp_node->next;
-    }
-    printf("======================================================================================\n");
-}
-
 error_t register_new_user(uint8_t* new_id)
 {
     pthread_mutex_lock(&registered_users->mutex);

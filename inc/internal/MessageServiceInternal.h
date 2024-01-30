@@ -40,9 +40,6 @@ error_t internal_term();
  */
 error_t send_packet(uint8_t destination_id, message_t* msg);
 
-
-void pl();
-
 /**
  * @brief Receive a packet that was sent for given receiver id
  *
