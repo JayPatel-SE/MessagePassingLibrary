@@ -125,6 +125,7 @@ error_t get_new_message(message_t** msg)
         LOGE("No more messages available\n");
         return kErr;
     }
+
     for (int i = 0; i < messages->max_size; i++)
     {
         if (messages->occupied[i] == 0)
@@ -184,8 +185,8 @@ error_t send_packet(uint8_t destination_id, message_t* msg)
         return kErrParam;
     }
 
-
     pthread_mutex_lock(&packets->mutex);
+
     if (packets->size == packets->max_size)
     {
         pthread_mutex_unlock(&packets->mutex);
@@ -240,6 +241,7 @@ error_t receive_packet(uint8_t receiver_id, message_t** msg)
             return kOk;
         }
     }
+
     pthread_mutex_unlock(&packets->mutex);
 
     LOGW("No packet was received, rec_id=%d\n", receiver_id);
@@ -254,6 +256,7 @@ error_t buffer_pool_init(buffer_pool_handle_t** handle, size_t data_size, uint8_
         LOGE("failed to allocate memory for buffer_pool_handle=%p\n", *handle);
         return kErr;
     }
+
     (*handle)->buffer_pool = malloc(sizeof(void*) * length);
     if ((*handle)->buffer_pool == NULL)
     {
@@ -261,6 +264,8 @@ error_t buffer_pool_init(buffer_pool_handle_t** handle, size_t data_size, uint8_
             *handle);
         return kErr;
     }
+    LOGI("intialized buffer pool, p=%p\n", (*handle)->buffer_pool);
+
     (*handle)->occupied = malloc(sizeof(uint8_t) * length);
     if ((*handle)->occupied == NULL)
     {
@@ -268,10 +273,10 @@ error_t buffer_pool_init(buffer_pool_handle_t** handle, size_t data_size, uint8_
             *handle);
         return kErr;
     }
+
     (*handle)->size = 0;
     (*handle)->max_size = length;
-    LOGI("handle=%p\n", (*handle));
-    LOGI("intialized circular buffer, p=%p\n", (*handle)->buffer_pool);
+
     if (pthread_mutex_init(&(*handle)->mutex, NULL) != 0)
     {
         LOGE("failed to init mutex for buffer_pool_handle=%p\n", *handle);
@@ -303,6 +308,7 @@ error_t buffer_pool_destory(buffer_pool_handle_t* handle)
         LOGE("failed to destory buffer_pool_handle=%p mutex\n", handle);
         ret_err = kErr;
     };
+
     free(handle->buffer_pool);
     free(handle);
 
@@ -324,11 +330,13 @@ error_t registered_users_init(linked_list_handle_t** users)
         LOGE("failed to allocate memory for head_node\n");
         return kErr;
     }
+
     (*users)->size = 0;
     (*users)->next_user_id = 1;
     (*users)->head_node->data = -1;
     (*users)->head_node->next = NULL;
     (*users)->head_node->prev = NULL;
+
     if (pthread_mutex_init(&(*users)->mutex, NULL) != 0)
     {
         LOGE("failed to init mutex for users\n");
@@ -364,6 +372,7 @@ error_t registered_users_destroy(linked_list_handle_t* users)
 error_t register_new_user(uint8_t* new_id)
 {
     pthread_mutex_lock(&registered_users->mutex);
+
     uint8_t gen_id = registered_users->next_user_id;
     registered_users->size++;
     registered_users->next_user_id++;
@@ -380,8 +389,8 @@ error_t register_new_user(uint8_t* new_id)
 
     temp_node->next = new_node;
     new_node->prev = temp_node;
-
     *new_id = gen_id;
+
     pthread_mutex_unlock(&registered_users->mutex);
 
     return kOk;
@@ -446,6 +455,7 @@ int check_internal_occupied(message_t* msg)
     }
 
     pthread_mutex_lock(&messages->mutex);
+
     for (int i = 0; i < messages->max_size; i++)
     {
         if (messages->buffer_pool[i] == msg)
@@ -454,6 +464,7 @@ int check_internal_occupied(message_t* msg)
             return messages->occupied[i];
         }
     }
+
     pthread_mutex_unlock(&messages->mutex);
 
     return -1;

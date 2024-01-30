@@ -70,9 +70,4 @@ typedef struct
     pthread_mutex_t mutex;
 } linked_list_handle_t;
 
-typedef struct
-{
-    uint8_t next_user_id;
-} user_id_generator_t;
-
 #endif
