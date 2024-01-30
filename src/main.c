@@ -12,7 +12,7 @@
 #include "test/APITests.h"
 #include "test/ConcurrentTests.h"
 #include "MessageService.h"
-#include "log.h"
+#include "utility/log.h"
 
 #include <pthread.h>
 

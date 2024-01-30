@@ -9,9 +9,9 @@
  *
  */
 
-#include "log.h"
+#include "utility/log.h"
 #include "MessageService.h"
-#include "MessageServiceInternal.h"
+#include "internal/MessageServiceInternal.h"
 
 #include <stdlib.h>
 #include <string.h>

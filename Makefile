@@ -1,4 +1,5 @@
 SOURCES += $(wildcard src/*.c) \
+		   $(wildcard src/internal/*.c) \
 
 INCLUDES += -Iinc
 
