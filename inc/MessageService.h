@@ -59,9 +59,33 @@ int send(uint8_t destination_id, message_t* msg);
  * @brief Receive any pending incoming messages
  *
  * @param[in] receiver_id The ID of the thread that wishes to recevie the message
- * @param[out] msg A reference to the pointer for the message being received
+ * @param[out] msg A pointer to the message being received
  * @return int 0 if success, non-0 if error
  */
-int recv(uint8_t receiver_id, message_t** msg);
+int recv(uint8_t receiver_id, message_t* msg);
+
+/**
+ * @brief Register a new user to the message service
+ *
+ * @return int an unique identifier for the user
+ */
+int register_user();
+
+/**
+ * @brief Deregister a user from the message service
+ *
+ * @param[in] user_id
+ * @return int 0 if success, -1 if failure
+ */
+int remove_user(int user_id);
+
+/**
+ * @brief This is ONLY FOR TESTING. Used to check if the given message_t* is
+ *        occupied or not.
+ *
+ * @param[in] msg pointer to the message
+ * @return int 0 is not occupied, 1 if occupied, -1 error
+ */
+int check_occupied(message_t* msg);
 
 #endif

@@ -4,7 +4,7 @@ INCLUDES += -Iinc
 
 BUILD_DIR = build
 
-LDFLAGS = -pthread -lm
+LDFLAGS = -pthread -lm -l cmocka
 
 WARNINGS += -Wall
 

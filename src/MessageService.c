@@ -14,9 +14,16 @@
 #include "MessageServiceInternal.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 error_t message_system_init(system_conf_t* conf)
 {
+    if (conf == NULL)
+    {
+        LOGE("Given null system config\n");
+        return kErr;
+    }
+
     error_t err = internal_init(conf);
     if (err != kOk)
     {
@@ -84,7 +91,7 @@ int send(uint8_t destination_id, message_t* msg)
     return 0;
 }
 
-int recv(uint8_t receiver_id, message_t** msg)
+int recv(uint8_t receiver_id, message_t* msg)
 {
     message_t* msg_temp;
     error_t err = receive_packet(receiver_id, &msg_temp);
@@ -94,7 +101,44 @@ int recv(uint8_t receiver_id, message_t** msg)
         return -1;
     }
 
-    *msg = msg_temp;
+    memcpy(msg->data, msg_temp->data, msg_temp->len);
+    msg->len = msg_temp->len;
 
     return 0;
+}
+
+int register_user()
+{
+    uint8_t new_id;
+    error_t err = register_new_user(&new_id);
+    if (err != kOk)
+    {
+        LOGE("failed to register new user, err=%d\n", err);
+        return -1;
+    }
+
+    return new_id;
+}
+
+int remove_user(int user_id)
+{
+    error_t err = deregister_user(user_id);
+    if (err != kOk)
+    {
+        LOGE("failed to deregister given user=%d, err=%d\n", user_id, err);
+        return -1;
+    }
+
+    return 0;
+}
+
+int check_occupied(message_t* msg)
+{
+    if (msg == NULL)
+    {
+        LOGE("Given msg is NULL\n");
+        return -1;
+    }
+
+    return check_internal_occupied(msg);
 }

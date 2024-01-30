@@ -53,4 +53,26 @@ typedef struct
     pthread_mutex_t mutex;
 } buffer_pool_handle_t;
 
+/* Node of a linked list */
+typedef struct node
+{
+    int data;
+    struct node* next;
+    struct node* prev;
+} node_t;
+
+/* handle for a doubly linked list */
+typedef struct
+{
+    node_t* head_node;
+    int size;
+    uint8_t next_user_id;
+    pthread_mutex_t mutex;
+} linked_list_handle_t;
+
+typedef struct
+{
+    uint8_t next_user_id;
+} user_id_generator_t;
+
 #endif

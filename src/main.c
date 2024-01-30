@@ -9,83 +9,23 @@
  *
  */
 
+#include "test/APITests.h"
+#include "test/ConcurrentTests.h"
 #include "MessageService.h"
 #include "log.h"
 
-#include <math.h>
 #include <pthread.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-
-#define DATA_TO_SEND "sending data"
-
-typedef struct {
-    uint8_t rec_id;
-    int* thread_ids;
-    int num_threads;
-} thread_params_t;
-
-void *send_thread(void* args)
-{
-    thread_params_t* params = (thread_params_t*) args;
-    int num_chars = 12;
-    message_t* msgs[params->num_threads];
-
-    for (int i = 0; i < params->num_threads; i++)
-    {
-        int num_digits = ((i+1) == 0) ? 1 : log10((i+1))+1;
-        int total_size = num_chars + num_digits + 1;
-        char src[total_size];
-
-        // get a message from system buffer
-        msgs[i] = new_message();
-        snprintf(src, total_size, "hello world %d", (i+1));
-
-        // fill in message
-        memcpy(msgs[i]->data, src, total_size+1);
-        msgs[i]->len = total_size+1;
-        printf("Added str=%s, len=%d, to msg\n", src, total_size);
-
-        // send message
-        send((i+1), msgs[i]);
-
-        // delete message
-        delete_message(msgs[i]);
-    }
-
-    return NULL;
-}
-
-void *receive_thread(void* args)
-{
-    thread_params_t* params = (thread_params_t*) args;
-    message_t* msg;
-    uint8_t rec_id = params->rec_id;
-
-    while (recv(rec_id, &msg) != 0)
-    {
-        printf("Thread%d waiting...\n", rec_id);
-        sleep(1);
-    }
-
-    char src[msg->len];
-    memcpy(src, msg->data, msg->len);
-    printf("received message=%s, length=%d\n", src, msg->len);
-
-    return NULL;
-}
 
 int main(void)
 {
-    // Setup the message system configuration
+    // 1. Setup Message Service
+    int max_messages = 10;
+    int max_packets = 10;
     system_conf_t conf;
-    conf.max_messages = 50;
-    conf.max_packets = 50;
+    conf.max_messages = max_messages;
+    conf.max_packets = max_packets;
 
-    // Initialize the message system
+    // 2. Initialize the message system
     error_t err = message_system_init(&conf);
     if (err != kOk)
     {
@@ -93,37 +33,40 @@ int main(void)
         return -1;
     }
 
-    // setup the sender thread id
-    int num_threads = 20;
-    thread_params_t params_send;
-    params_send.num_threads = num_threads;
-    params_send.thread_ids = malloc(sizeof(int) * num_threads);
-    for (int i = 0; i < num_threads; i++)
-    {
-        params_send.thread_ids[i] = (i+1);
-    }
+    // 3. Get new message
+    message_t* msg = new_message();
 
-    pthread_t send_thread_id;
-    pthread_create(&send_thread_id, NULL, send_thread, &params_send);
+    // 4. Register user
+    int rec_id = register_user();
 
-    // setup the receiver threads
-    pthread_t rec_threads[num_threads];
-    thread_params_t rec_params[num_threads];
-    for(int i = 0; i < num_threads; i++)
-    {
-        params_send.rec_id = (i+1);
-        rec_params[i].rec_id = (i+1);
-        pthread_create(&rec_threads[i], NULL, receive_thread, &rec_params[i]);
-    }
+    // 5. Fill in Data
+    int num_chars = 12;
+    int num_digits = (rec_id == 0) ? 1 : log10(rec_id)+1;
+    int total_size = num_chars + num_digits + 1;
+    char src[total_size];
+    snprintf(src, total_size, "hello world %d", rec_id);
+    memcpy(msg->data, src, total_size);
+    msg->len = total_size;
 
-    pthread_join(send_thread_id, NULL);
-    for(int i = 0; i < num_threads; i++)
-    {
-        pthread_join(rec_threads[i], NULL);
-    }
+    // 6. Send the message
+    send(rec_id, msg);
 
-    // Teardown the Message System to free all memory
+    // 7. Delete message
+    delete_message(msg);
+
+    // 8. Receive message
+    message_t rec_msg;
+    recv(rec_id, &rec_msg);
+    char rec_src[rec_msg.len];
+    memcpy(rec_src, rec_msg.data, rec_msg.len);
+    printf("received message=%s, length=%d\n", rec_src, rec_msg.len);
+
+    // 9. Teardown system
     message_system_term();
+
+    // run tests
+    cmocka_run_group_tests_name("api_tests", api_tests, NULL, NULL);
+    cmocka_run_group_tests_name("basic_tests", basic_tests, NULL, NULL);
 
     return 0;
 }
