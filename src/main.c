@@ -33,17 +33,18 @@ int main(void)
         return -1;
     }
 
-    // 3. Get new message
-    message_t* msg = new_message();
-
-    // 4. Register user
+    // 3. Register user
     int rec_id = register_user();
+
+    // 4. Get new message
+    message_t* msg = new_message();
 
     // 5. Fill in Data
     int num_chars = 12;
     int num_digits = (rec_id == 0) ? 1 : log10(rec_id)+1;
     int total_size = num_chars + num_digits + 1;
     char src[total_size];
+
     snprintf(src, total_size, "hello world %d", rec_id);
     memcpy(msg->data, src, total_size);
     msg->len = total_size;

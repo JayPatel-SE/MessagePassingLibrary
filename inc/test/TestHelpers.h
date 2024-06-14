@@ -78,7 +78,7 @@ static void setup_and_send_msgs(
             msg[i]->len = total_size+1;
 
             // send message
-            int err = send(rec_id, msg[i]);
+            error_t err = send(rec_id, msg[i]);
             assert_int_equal(err, 0);
         }
 }

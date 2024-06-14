@@ -9,8 +9,8 @@
  *
  */
 
-#include "utility/log.h"
 #include "internal/MessageServiceInternal.h"
+#include "utility/log.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -63,7 +63,7 @@ error_t internal_init(system_conf_t* conf)
         }
     }
 
-    for (int i = 0; i < conf->max_messages; i++)
+    for (int i = 0; i < conf->max_packets; i++)
     {
         if (packets->buffer_pool[i] == NULL)
         {
@@ -178,7 +178,7 @@ error_t send_packet(uint8_t destination_id, message_t* msg)
         return kErrParam;
     }
 
-    if(is_user_registered(destination_id) != 1)
+    if(is_user_registered(destination_id) != kOk)
     {
         LOGE("the given destination=%d is not registered to the service\n",
             destination_id);
@@ -200,12 +200,14 @@ error_t send_packet(uint8_t destination_id, message_t* msg)
         {
             packets->size++;
             packets->occupied[i] = 1;
+
             packet_t* packet = (packet_t*)packets->buffer_pool[i];
             packet->dst = destination_id;
             memcpy(packet->msg->data, msg->data, msg->len);
             packet->msg->len = msg->len;
-            LOGI("Get new packet from buffer, p:%p, i:%d, msg=%p\n",
+            LOGD("Got new packet from buffer, p:%p, i:%d, msg=%p\n",
                 packet, i, packet->msg);
+
             pthread_mutex_unlock(&packets->mutex);
             return kOk;
         }
@@ -219,7 +221,7 @@ error_t send_packet(uint8_t destination_id, message_t* msg)
 
 error_t receive_packet(uint8_t receiver_id, message_t** msg)
 {
-    if(is_user_registered(receiver_id) != 1)
+    if(is_user_registered(receiver_id) != kOk)
     {
         LOGE("the given receiver_id=%d is not registered to the service\n",
             receiver_id);
@@ -231,7 +233,7 @@ error_t receive_packet(uint8_t receiver_id, message_t** msg)
     for (int i = 0; i < packets->max_size; i++)
     {
         packet_t* pkt = (packet_t*)packets->buffer_pool[i];
-        if (pkt->dst == receiver_id && packets->occupied[i] == 1)
+        if (packets->occupied[i] == 1 && pkt->dst == receiver_id)
         {
             *msg = pkt->msg;
             packets->occupied[i] = 0;
@@ -260,8 +262,7 @@ error_t buffer_pool_init(buffer_pool_handle_t** handle, size_t data_size, uint8_
     (*handle)->buffer_pool = malloc(sizeof(void*) * length);
     if ((*handle)->buffer_pool == NULL)
     {
-        LOGE("failed to allocate memory for buffer_pool_handle=%p, buffer pool\n",
-            *handle);
+        LOGE("failed to allocate memory for buffer pool for buffer_pool_handle=%p\n", *handle);
         return kErr;
     }
     LOGI("intialized buffer pool, p=%p\n", (*handle)->buffer_pool);
@@ -269,8 +270,7 @@ error_t buffer_pool_init(buffer_pool_handle_t** handle, size_t data_size, uint8_
     (*handle)->occupied = malloc(sizeof(uint8_t) * length);
     if ((*handle)->occupied == NULL)
     {
-        LOGE("failed to allocate memory for buffer_pool_handle=%p, occupied\n",
-            *handle);
+        LOGE("failed to allocate memory for occupied buffer_pool_handle=%p\n", *handle);
         return kErr;
     }
 
@@ -286,9 +286,8 @@ error_t buffer_pool_init(buffer_pool_handle_t** handle, size_t data_size, uint8_
     for (int i = 0; i < length; i++)
     {
         (*handle)->buffer_pool[i] = malloc(data_size);
-        LOGI("created a new buffer, p=%p, i=%d\n",
-            (*handle)->buffer_pool[i], i);
         (*handle)->occupied[i] = 0;
+        LOGI("created a new buffer, p=%p, i=%d\n", (*handle)->buffer_pool[i], i);
     }
 
     return kOk;
@@ -310,6 +309,7 @@ error_t buffer_pool_destory(buffer_pool_handle_t* handle)
     };
 
     free(handle->buffer_pool);
+    free(handle->occupied);
     free(handle);
 
     return ret_err;
@@ -427,7 +427,7 @@ error_t deregister_user(uint8_t user_id)
     return kOk;
 }
 
-int is_user_registered(uint8_t user_id)
+error_t is_user_registered(uint8_t user_id)
 {
     pthread_mutex_lock(&registered_users->mutex);
 
@@ -437,13 +437,13 @@ int is_user_registered(uint8_t user_id)
         if (temp_node->data == user_id)
         {
             pthread_mutex_unlock(&registered_users->mutex);
-            return 1;
+            return kOk;
         }
         temp_node = temp_node->next;
     }
 
     pthread_mutex_unlock(&registered_users->mutex);
-    return 0;
+    return kErr;
 }
 
 int check_internal_occupied(message_t* msg)

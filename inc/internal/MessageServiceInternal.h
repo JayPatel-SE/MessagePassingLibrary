@@ -120,9 +120,9 @@ error_t deregister_user(uint8_t user_id);
  * @brief Determine if a user is registered to the system
  *
  * @param[in] user_id the user id to check
- * @return int 0 if not registered, 1 if registered
+ * @return error_t Error code, kOk is user is registered
  */
-int is_user_registered(uint8_t user_id);
+error_t is_user_registered(uint8_t user_id);
 
 /**
  * @brief This is ONLY FOR TESTING. Used to check if the given message_t* is
