@@ -33,6 +33,21 @@ error_t message_system_init(system_conf_t* conf);
 error_t message_system_term();
 
 /**
+ * @brief Register a new user to the message service
+ *
+ * @return int an unique identifier for the user
+ */
+int register_user();
+
+/**
+ * @brief Deregister a user from the message service
+ *
+ * @param[in] user_id
+ * @return int 0 if success, -1 if failure
+ */
+int remove_user(int user_id);
+
+/**
  * @brief Get an available message struct from the library
  *
  * @return message_t* return a message struct else NULL
@@ -63,21 +78,6 @@ int send(uint8_t destination_id, message_t* msg);
  * @return int 0 if success, non-0 if error
  */
 int recv(uint8_t receiver_id, message_t* msg);
-
-/**
- * @brief Register a new user to the message service
- *
- * @return int an unique identifier for the user
- */
-int register_user();
-
-/**
- * @brief Deregister a user from the message service
- *
- * @param[in] user_id
- * @return int 0 if success, -1 if failure
- */
-int remove_user(int user_id);
 
 /**
  * @brief This is ONLY FOR TESTING. Used to check if the given message_t* is

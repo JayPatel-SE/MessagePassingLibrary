@@ -45,6 +45,31 @@ error_t message_system_term()
     return kOk;
 }
 
+int register_user()
+{
+    uint8_t new_id;
+    error_t err = register_new_user(&new_id);
+    if (err != kOk)
+    {
+        LOGE("failed to register new user, err=%d\n", err);
+        return -1;
+    }
+
+    return new_id;
+}
+
+int remove_user(int user_id)
+{
+    error_t err = deregister_user(user_id);
+    if (err != kOk)
+    {
+        LOGE("failed to deregister given user=%d, err=%d\n", user_id, err);
+        return -1;
+    }
+
+    return 0;
+}
+
 message_t* new_message(void)
 {
     message_t* msg = NULL;
@@ -104,31 +129,6 @@ int recv(uint8_t receiver_id, message_t* msg)
 
     memcpy(msg->data, msg_temp->data, msg_temp->len);
     msg->len = msg_temp->len;
-
-    return 0;
-}
-
-int register_user()
-{
-    uint8_t new_id;
-    error_t err = register_new_user(&new_id);
-    if (err != kOk)
-    {
-        LOGE("failed to register new user, err=%d\n", err);
-        return -1;
-    }
-
-    return new_id;
-}
-
-int remove_user(int user_id)
-{
-    error_t err = deregister_user(user_id);
-    if (err != kOk)
-    {
-        LOGE("failed to deregister given user=%d, err=%d\n", user_id, err);
-        return -1;
-    }
 
     return 0;
 }
