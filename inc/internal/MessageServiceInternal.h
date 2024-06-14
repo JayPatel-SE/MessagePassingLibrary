@@ -32,40 +32,6 @@ error_t internal_init(system_conf_t* conf);
 error_t internal_term();
 
 /**
- * @brief Send a packet from one thread to another
- *
- * @param[in] destination_id The destination of the packet
- * @param[in] msg The message to contain in the packet
- * @return error_t error code
- */
-error_t send_packet(uint8_t destination_id, message_t* msg);
-
-/**
- * @brief Receive a packet that was sent for given receiver id
- *
- * @param[in] receiver_id The receiver of the packet
- * @param[out] msg pointer to message that will be received
- * @return error_t error code
- */
-error_t receive_packet(uint8_t receiver_id, message_t** msg);
-
-/**
- * @brief Get a new message from the internal system
- *
- * @param[out] msg pointer to the new message
- * @return error_t error code
- */
-error_t get_new_message(message_t** msg);
-
-/**
- * @brief Return a used message to the system's buffer pool
- *
- * @param[in] msg pointer to the message being returned
- * @return error_t error code
- */
-error_t return_used_message(message_t* msg);
-
-/**
  * @brief Initialize a buffer pool with a given buffer size
  *
  * @param[out] handle a reference to the pointer to the buffer pool
@@ -115,6 +81,40 @@ error_t register_new_user(uint8_t* new_id);
  * @return error_t Error code, kOk if successful
  */
 error_t deregister_user(uint8_t user_id);
+
+/**
+ * @brief Get a new message from the internal system
+ *
+ * @param[out] msg pointer to the new message
+ * @return error_t error code
+ */
+error_t get_new_message(message_t** msg);
+
+/**
+ * @brief Return a used message to the system's buffer pool
+ *
+ * @param[in] msg pointer to the message being returned
+ * @return error_t error code
+ */
+error_t return_used_message(message_t* msg);
+
+/**
+ * @brief Send a packet from one thread to another
+ *
+ * @param[in] destination_id The destination of the packet
+ * @param[in] msg The message to contain in the packet
+ * @return error_t error code
+ */
+error_t send_packet(uint8_t destination_id, message_t* msg);
+
+/**
+ * @brief Receive a packet that was sent for given receiver id
+ *
+ * @param[in] receiver_id The receiver of the packet
+ * @param[out] msg pointer to message that will be received
+ * @return error_t error code
+ */
+error_t receive_packet(uint8_t receiver_id, message_t** msg);
 
 /**
  * @brief Determine if a user is registered to the system
