@@ -13,7 +13,8 @@
 
 #define ENABLE_ERROR_LOGS 0     // 0 to disbale ERROR logs, 1 to enable
 #define ENABLE_INFO_LOGS 0      // 0 to disable INFO logs, 1 to enable
-#define ENABLE_WARNING_LOGS 0      // 0 to disable WARNING logs, 1 to enable
+#define ENABLE_WARNING_LOGS 0   // 0 to disable WARNING logs, 1 to enable
+#define ENABLE_DEBUG_LOGS 0     // 0 to disable DEBUG logs, 1 to enable
 
 #ifndef LOG_H
 #define LOG_H
@@ -34,6 +35,12 @@
 #define LOGW(...)  printf("WARN: " __VA_ARGS__);
 #else
 #define LOGW(...) // do nothing
+#endif
+
+#if ENABLE_DEBUG_LOGS == 1
+#define LOGD(...)  printf("DEBUG: " __VA_ARGS__);
+#else
+#define LOGD(...) // do nothing
 #endif
 
 #endif
