@@ -158,7 +158,7 @@ static void send_tests(void **state)
 
         for (int i = 0; i < num_users; i++)
         {
-            int err = send(registered_users[i], msg[i]);
+            error_t err = send(registered_users[i], msg[i]);
             assert_int_equal(err, 0);
         }
 
@@ -194,7 +194,7 @@ static void send_tests(void **state)
 
         for (int i = 0; i < num_users; i++)
         {
-            int err = send(registered_users[i], NULL);
+            error_t err = send(registered_users[i], NULL);
             assert_int_not_equal(err, 0);
         }
 
@@ -230,11 +230,49 @@ static void send_tests(void **state)
 
         for (int i = 0; i < num_users; i++)
         {
-            int err = send(-1, NULL);
+            error_t err = send(-1, NULL);
             assert_int_not_equal(err, 0);
         }
 
         for (int i = 0; i < num_users; i++)
+        {
+            delete_message(msg[i]);
+            assert_non_null(msg[i]);
+            assert_int_equal(check_occupied(msg[i]), 0);
+            remove_user(registered_users[i]);
+        }
+
+        teardown_service();
+    }
+
+    {
+        // Send more than num_messages messages
+        int num_messages = 10;
+        setup_service(num_messages, num_messages);
+        message_t* msg[num_messages];
+        int registered_users[num_messages];
+
+        for (int i = 0; i < num_messages; i++)
+        {
+            registered_users[i] = register_user();
+        }
+
+        for (int i = 0; i < num_messages; i++)
+        {
+            msg[i] = new_message();
+            assert_non_null(msg[i]);
+        }
+
+        for (int i = 0; i < num_messages; i++)
+        {
+            error_t err = send(registered_users[i], msg[i]);
+            assert_int_equal(err, 0);
+        }
+
+        error_t err = send(registered_users[0], msg[0]);
+        assert_int_not_equal(err, 0);
+
+        for (int i = 0; i < num_messages; i++)
         {
             delete_message(msg[i]);
             assert_non_null(msg[i]);
